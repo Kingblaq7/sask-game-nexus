@@ -24,7 +24,7 @@ export default function LandingPage() {
             <span className="font-display font-bold">W3 Gaming Hub</span>
           </div>
           <Link
-            to="/dashboard"
+            to="/auth"
             className="px-4 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity"
           >
             Launch App
@@ -71,7 +71,7 @@ export default function LandingPage() {
           className="mt-8 flex flex-wrap gap-4 justify-center"
         >
           <Link
-            to="/dashboard"
+            to="/auth"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold hover:opacity-90 transition-opacity glow-primary"
           >
             Get Started <ArrowRight className="w-4 h-4" />
