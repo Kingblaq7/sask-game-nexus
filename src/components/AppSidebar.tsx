@@ -9,11 +9,16 @@ import {
   Gamepad2,
   ChevronLeft,
   ChevronRight,
-  Wallet,
+  LogOut,
+  User,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 const navItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
@@ -27,6 +32,27 @@ const navItems = [
 
 export function AppSidebar() {
   const [collapsed, setCollapsed] = useState(false);
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const { data: profile } = useQuery({
+    queryKey: ["profile", user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!user,
+  });
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
 
   return (
     <motion.aside
@@ -39,11 +65,7 @@ export function AppSidebar() {
           <Gamepad2 className="w-4 h-4 text-primary-foreground" />
         </div>
         {!collapsed && (
-          <motion.span
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="font-display font-bold text-sm truncate"
-          >
+          <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="font-display font-bold text-sm truncate">
             W3 Gaming Hub
           </motion.span>
         )}
@@ -65,21 +87,32 @@ export function AppSidebar() {
       </nav>
 
       <div className="p-3 border-t border-border">
-        {!collapsed && (
+        {!collapsed && profile && (
           <div className="glass-card p-3 mb-3">
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <Wallet className="w-4 h-4 text-primary" />
-              <span className="truncate">0x1a2b...9f3e</span>
+            <div className="flex items-center gap-2 text-xs">
+              <User className="w-4 h-4 text-primary" />
+              <span className="truncate font-medium">{profile.username || user?.email}</span>
             </div>
-            <div className="mt-1 text-xs text-success">Base Network</div>
+            <div className="mt-1 text-xs text-muted-foreground capitalize">{profile.role}</div>
           </div>
         )}
-        <button
-          onClick={() => setCollapsed(!collapsed)}
-          className="w-full flex items-center justify-center p-2 rounded-lg hover:bg-muted/50 text-muted-foreground transition-colors"
-        >
-          {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
-        </button>
+        <div className="flex gap-1">
+          {!collapsed && (
+            <button
+              onClick={handleSignOut}
+              className="flex-1 flex items-center justify-center gap-2 p-2 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors text-sm"
+            >
+              <LogOut className="w-4 h-4" />
+              Sign Out
+            </button>
+          )}
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className="flex items-center justify-center p-2 rounded-lg hover:bg-muted/50 text-muted-foreground transition-colors"
+          >
+            {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+          </button>
+        </div>
       </div>
     </motion.aside>
   );
