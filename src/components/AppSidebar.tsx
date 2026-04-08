@@ -17,8 +17,6 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 
 const navItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
@@ -34,20 +32,6 @@ export function AppSidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
-
-  const { data: profile } = useQuery({
-    queryKey: ["profile", user?.id],
-    queryFn: async () => {
-      if (!user) return null;
-      const { data } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("user_id", user.id)
-        .maybeSingle();
-      return data;
-    },
-    enabled: !!user,
-  });
 
   const handleSignOut = async () => {
     await signOut();
@@ -87,13 +71,13 @@ export function AppSidebar() {
       </nav>
 
       <div className="p-3 border-t border-border">
-        {!collapsed && profile && (
+        {!collapsed && user && (
           <div className="glass-card p-3 mb-3">
             <div className="flex items-center gap-2 text-xs">
               <User className="w-4 h-4 text-primary" />
-              <span className="truncate font-medium">{profile.username || user?.email}</span>
+              <span className="truncate font-medium">{user.username || user.email}</span>
             </div>
-            <div className="mt-1 text-xs text-muted-foreground capitalize">{profile.role}</div>
+            <div className="mt-1 text-xs text-muted-foreground capitalize">member</div>
           </div>
         )}
         <div className="flex gap-1">
