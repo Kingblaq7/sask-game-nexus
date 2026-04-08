@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Gamepad2, Mail, Lock, User } from "lucide-react";
+import { Gamepad2, Mail, Lock, User, Wallet } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { useWallet } from "@/hooks/useWallet";
 
 export default function AuthPage() {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -14,6 +15,7 @@ export default function AuthPage() {
   const { signIn, signUp } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const wallet = useWallet();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -103,6 +105,23 @@ export default function AuthPage() {
             {loading ? "Loading..." : isSignUp ? "Sign Up" : "Sign In"}
           </button>
         </form>
+
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-border" /></div>
+          <div className="relative flex justify-center"><span className="bg-card px-3 text-xs text-muted-foreground">or</span></div>
+        </div>
+
+        <button
+          onClick={wallet.connect}
+          disabled={wallet.connecting}
+          className="w-full flex items-center justify-center gap-2 py-3 rounded-lg border border-border hover:bg-muted/30 transition-colors text-sm font-medium disabled:opacity-50"
+        >
+          <Wallet className="w-4 h-4" />
+          {wallet.connecting ? "Connecting..." : wallet.address ? `Connected: ${wallet.shortAddress}` : "Connect Wallet"}
+        </button>
+        {!wallet.hasProvider && (
+          <p className="text-xs text-muted-foreground text-center mt-2">Install MetaMask to connect a wallet</p>
+        )}
 
         <p className="text-sm text-muted-foreground text-center mt-6">
           {isSignUp ? "Already have an account?" : "Don't have an account?"}{" "}
