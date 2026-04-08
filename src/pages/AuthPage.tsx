@@ -21,7 +21,8 @@ export default function AuthPage() {
     try {
       if (isSignUp) {
         await signUp(email, password, username);
-        toast({ title: "Account created!", description: "Check your email to verify your account." });
+        toast({ title: "Account created!", description: "You are now signed in." });
+        navigate("/dashboard");
       } else {
         await signIn(email, password);
         navigate("/dashboard");
