@@ -12,6 +12,7 @@ import {
   LogOut,
   User,
 } from "lucide-react";
+import { WalletButton } from "@/components/WalletButton";
 import { NavLink } from "@/components/NavLink";
 import { useState } from "react";
 import { motion } from "framer-motion";
@@ -70,9 +71,10 @@ export function AppSidebar() {
         ))}
       </nav>
 
-      <div className="p-3 border-t border-border">
+      <div className="p-3 border-t border-border space-y-2">
+        <WalletButton collapsed={collapsed} />
         {!collapsed && user && (
-          <div className="glass-card p-3 mb-3">
+          <div className="glass-card p-3">
             <div className="flex items-center gap-2 text-xs">
               <User className="w-4 h-4 text-primary" />
               <span className="truncate font-medium">{user.username || user.email}</span>
