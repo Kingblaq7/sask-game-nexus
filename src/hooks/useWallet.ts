@@ -5,6 +5,7 @@ const WALLET_KEY = "w3gh:wallet";
 interface WalletState {
   address: string | null;
   chainId: string | null;
+  balance: string | null;
   connecting: boolean;
   error: string | null;
 }
@@ -26,9 +27,25 @@ export function useWallet() {
   const [state, setState] = useState<WalletState>({
     address: localStorage.getItem(WALLET_KEY),
     chainId: null,
+    balance: null,
     connecting: false,
     error: null,
   });
+
+  const fetchBalance = useCallback(async (addr: string) => {
+    if (!hasProvider) return;
+    try {
+      const raw: string = await (window as any).ethereum.request({
+        method: "eth_getBalance",
+        params: [addr, "latest"],
+      });
+      const wei = parseInt(raw, 16);
+      const eth = (wei / 1e18).toFixed(4);
+      setState((s) => ({ ...s, balance: eth }));
+    } catch {
+      setState((s) => ({ ...s, balance: null }));
+    }
+  }, [hasProvider]);
 
   const hasProvider = typeof window !== "undefined" && !!(window as any).ethereum;
 
