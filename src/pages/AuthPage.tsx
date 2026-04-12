@@ -54,7 +54,7 @@ export default function AuthPage() {
           <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
             <Gamepad2 className="w-5 h-5 text-primary-foreground" />
           </div>
-          <span className="font-display font-bold text-xl">W3 Gaming Hub</span>
+          <span className="font-display font-bold text-xl">Sask Gaming Pad</span>
         </div>
 
         <h2 className="font-display text-xl font-semibold text-center mb-6">
