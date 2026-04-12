@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 
 export function WalletButton({ collapsed = false }: { collapsed?: boolean }) {
-  const { address, shortAddress, isBaseNetwork, connecting, error, hasProvider, connect, disconnect, switchToBase } = useWallet();
+  const { address, shortAddress, balance, isBaseNetwork, connecting, error, hasProvider, connect, disconnect, switchToBase } = useWallet();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -53,7 +53,12 @@ export function WalletButton({ collapsed = false }: { collapsed?: boolean }) {
         className="flex items-center gap-2 px-3 py-2 rounded-lg bg-success/10 text-success hover:bg-success/20 transition-colors text-sm font-medium w-full"
       >
         <Wallet className="w-4 h-4 flex-shrink-0" />
-        <span className="truncate">{shortAddress}</span>
+        <div className="flex flex-col items-start truncate">
+          <span className="truncate text-sm">{shortAddress}</span>
+          {balance !== null && (
+            <span className="text-[10px] text-muted-foreground">{balance} ETH</span>
+          )}
+        </div>
         <ChevronDown className={`w-3 h-3 ml-auto transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
 
