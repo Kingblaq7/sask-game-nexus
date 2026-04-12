@@ -51,7 +51,7 @@ export function AppSidebar() {
         </div>
         {!collapsed && (
           <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="font-display font-bold text-sm truncate">
-            W3 Gaming Hub
+            Sask Gaming Pad
           </motion.span>
         )}
       </div>
