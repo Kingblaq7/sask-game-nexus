@@ -23,6 +23,8 @@ function shortenAddress(addr: string) {
   return `${addr.slice(0, 6)}...${addr.slice(-4)}`;
 }
 
+const hasProvider = typeof window !== "undefined" && !!(window as any).ethereum;
+
 export function useWallet() {
   const [state, setState] = useState<WalletState>({
     address: localStorage.getItem(WALLET_KEY),
@@ -45,9 +47,7 @@ export function useWallet() {
     } catch {
       setState((s) => ({ ...s, balance: null }));
     }
-  }, [hasProvider]);
-
-  const hasProvider = typeof window !== "undefined" && !!(window as any).ethereum;
+  }, []);
 
   const updateChain = useCallback(async () => {
     if (!hasProvider) return;
@@ -55,7 +55,7 @@ export function useWallet() {
       const chainId = await (window as any).ethereum.request({ method: "eth_chainId" });
       setState((s) => ({ ...s, chainId }));
     } catch {}
-  }, [hasProvider]);
+  }, []);
 
   // Auto-reconnect saved wallet on mount
   useEffect(() => {
@@ -65,19 +65,20 @@ export function useWallet() {
         const accounts: string[] = await (window as any).ethereum.request({ method: "eth_accounts" });
         if (accounts.length === 0) {
           localStorage.removeItem(WALLET_KEY);
-          setState((s) => ({ ...s, address: null }));
+          setState((s) => ({ ...s, address: null, balance: null }));
         } else {
           const addr = accounts[0];
           localStorage.setItem(WALLET_KEY, addr);
           setState((s) => ({ ...s, address: addr }));
           updateChain();
+          fetchBalance(addr);
         }
       } catch {
         localStorage.removeItem(WALLET_KEY);
-        setState((s) => ({ ...s, address: null }));
+        setState((s) => ({ ...s, address: null, balance: null }));
       }
     })();
-  }, [hasProvider, updateChain]);
+  }, [updateChain, fetchBalance]);
 
   // Listen for account & chain changes
   useEffect(() => {
@@ -86,14 +87,16 @@ export function useWallet() {
     const onAccountsChanged = (accounts: string[]) => {
       if (accounts.length === 0) {
         localStorage.removeItem(WALLET_KEY);
-        setState((s) => ({ ...s, address: null, chainId: null }));
+        setState((s) => ({ ...s, address: null, chainId: null, balance: null }));
       } else {
         localStorage.setItem(WALLET_KEY, accounts[0]);
         setState((s) => ({ ...s, address: accounts[0] }));
+        fetchBalance(accounts[0]);
       }
     };
     const onChainChanged = (chainId: string) => {
       setState((s) => ({ ...s, chainId }));
+      if (state.address) fetchBalance(state.address);
     };
     eth.on("accountsChanged", onAccountsChanged);
     eth.on("chainChanged", onChainChanged);
@@ -101,7 +104,7 @@ export function useWallet() {
       eth.removeListener("accountsChanged", onAccountsChanged);
       eth.removeListener("chainChanged", onChainChanged);
     };
-  }, [hasProvider]);
+  }, [fetchBalance, state.address]);
 
   const connect = useCallback(async () => {
     if (!hasProvider) {
@@ -115,14 +118,15 @@ export function useWallet() {
       localStorage.setItem(WALLET_KEY, addr);
       setState((s) => ({ ...s, address: addr, connecting: false }));
       await updateChain();
+      await fetchBalance(addr);
     } catch (err: any) {
       setState((s) => ({ ...s, connecting: false, error: err?.message || "Connection rejected" }));
     }
-  }, [hasProvider, updateChain]);
+  }, [updateChain, fetchBalance]);
 
   const disconnect = useCallback(() => {
     localStorage.removeItem(WALLET_KEY);
-    setState({ address: null, chainId: null, connecting: false, error: null });
+    setState({ address: null, chainId: null, balance: null, connecting: false, error: null });
   }, []);
 
   const switchToBase = useCallback(async () => {
@@ -140,7 +144,7 @@ export function useWallet() {
         });
       }
     }
-  }, [hasProvider]);
+  }, []);
 
   const isBaseNetwork = state.chainId === BASE_CHAIN_ID;
 
@@ -148,6 +152,7 @@ export function useWallet() {
     address: state.address,
     shortAddress: state.address ? shortenAddress(state.address) : null,
     chainId: state.chainId,
+    balance: state.balance,
     isBaseNetwork,
     connecting: state.connecting,
     error: state.error,

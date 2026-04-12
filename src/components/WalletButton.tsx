@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 
 export function WalletButton({ collapsed = false }: { collapsed?: boolean }) {
-  const { address, shortAddress, isBaseNetwork, connecting, error, hasProvider, connect, disconnect, switchToBase } = useWallet();
+  const { address, shortAddress, balance, isBaseNetwork, connecting, error, hasProvider, connect, disconnect, switchToBase } = useWallet();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
