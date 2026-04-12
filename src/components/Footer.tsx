@@ -10,7 +10,7 @@ export function Footer() {
           <span className="font-display font-semibold text-sm">Sask Gaming Pad</span>
         </div>
         <SocialLinks variant="icons" />
-        <p className="text-xs text-muted-foreground">© 2026 Web3 Gaming Collaboration Hub</p>
+        <p className="text-xs text-muted-foreground">© 2026 Sask Gaming Pad</p>
       </div>
     </footer>
   );
