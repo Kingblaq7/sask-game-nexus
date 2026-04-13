@@ -3,6 +3,7 @@ import { Megaphone, X, Clock, CheckCircle2, DollarSign, Users, ArrowLeft, Send, 
 import { useAuth } from "@/contexts/AuthContext";
 import { useState, useCallback } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { addNotification } from "@/lib/notifications";
 import {
   getCampaigns,
   createCampaign,
@@ -87,6 +88,7 @@ export default function CollabsPage() {
   const handleApply = (campaignId: string) => {
     if (!user) return;
     try {
+      const campaign = getCampaignById(campaignId);
       applyForCampaign({
         campaign_id: campaignId,
         user_id: user.email,
@@ -94,6 +96,16 @@ export default function CollabsPage() {
         submission_links: applyLinks,
         message: applyMessage,
       });
+      // Notify campaign creator
+      if (campaign) {
+        addNotification({
+          user_id: campaign.creator,
+          title: "New Application",
+          message: `${user.username} applied to "${campaign.title}"`,
+          type: "application",
+          link: "/collabs",
+        });
+      }
       setShowApplyForm(false);
       setApplyMessage("");
       setApplyLinks("");
@@ -105,9 +117,27 @@ export default function CollabsPage() {
 
   const handleAppStatus = (appId: string, status: Application["status"]) => {
     try {
+      // Get application before updating to notify user
+      const apps = getApplicationsByCampaign(selectedCampaign || "");
+      const app = apps.find((a) => a.id === appId);
+      const campaign = selectedCampaign ? getCampaignById(selectedCampaign) : null;
+
       updateApplicationStatus(appId, status);
+
+      // Notify the applicant
+      if (app && campaign) {
+        addNotification({
+          user_id: app.user_id,
+          title: status === "approved" ? "Application Approved! 🎉" : "Application Rejected",
+          message: status === "approved"
+            ? `Your application to "${campaign.title}" was approved! Earnings have been added.`
+            : `Your application to "${campaign.title}" was rejected.`,
+          type: "status",
+          link: status === "approved" ? "/earnings" : "/collabs",
+        });
+      }
+
       toast({ title: `Application ${status}` });
-      // Force re-render of detail view
       setSelectedCampaign((prev) => prev);
     } catch (err: any) {
       toast({ title: "Error", description: err.message, variant: "destructive" });
