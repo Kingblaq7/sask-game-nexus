@@ -6,6 +6,8 @@ import {
   PieChart,
   FileCode2,
   BarChart3,
+  Megaphone,
+  DollarSign,
   Gamepad2,
   ChevronLeft,
   ChevronRight,
@@ -27,6 +29,8 @@ const navItems = [
   { title: "Revenue Splits", url: "/revenue", icon: PieChart },
   { title: "Smart Contracts", url: "/contracts", icon: FileCode2 },
   { title: "Analytics", url: "/analytics", icon: BarChart3 },
+  { title: "Collabs", url: "/collabs", icon: Megaphone },
+  { title: "Earnings", url: "/earnings", icon: DollarSign },
 ];
 
 export function AppSidebar() {

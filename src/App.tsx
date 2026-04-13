@@ -16,6 +16,8 @@ import DAOPage from "./pages/DAOPage";
 import RevenuePage from "./pages/RevenuePage";
 import ContractsPage from "./pages/ContractsPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
+import CollabsPage from "./pages/CollabsPage";
+import EarningsPage from "./pages/EarningsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -39,6 +41,8 @@ const App = () => (
               <Route path="/revenue" element={<RevenuePage />} />
               <Route path="/contracts" element={<ContractsPage />} />
               <Route path="/analytics" element={<AnalyticsPage />} />
+              <Route path="/collabs" element={<CollabsPage />} />
+              <Route path="/earnings" element={<EarningsPage />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
