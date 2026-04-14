@@ -32,6 +32,7 @@ const navItems = [
   { title: "Analytics", url: "/analytics", icon: BarChart3 },
   { title: "Collabs", url: "/collabs", icon: Megaphone },
   { title: "Earnings", url: "/earnings", icon: DollarSign },
+  { title: "Profile", url: "/profile", icon: User },
 ];
 
 export function AppSidebar() {
