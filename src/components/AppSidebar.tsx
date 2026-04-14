@@ -9,7 +9,7 @@ import {
   BarChart3,
   Megaphone,
   DollarSign,
-  Gamepad2,
+  
   ChevronLeft,
   ChevronRight,
   LogOut,
