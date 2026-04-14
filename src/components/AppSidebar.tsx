@@ -1,3 +1,4 @@
+import logo from "@/assets/logo.png";
 import {
   LayoutDashboard,
   FolderKanban,
@@ -8,7 +9,7 @@ import {
   BarChart3,
   Megaphone,
   DollarSign,
-  Gamepad2,
+  
   ChevronLeft,
   ChevronRight,
   LogOut,
@@ -52,9 +53,7 @@ export function AppSidebar() {
       className="h-screen sticky top-0 flex flex-col bg-sidebar border-r border-border"
     >
       <div className="flex items-center gap-3 px-4 h-16 border-b border-border">
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center flex-shrink-0">
-          <Gamepad2 className="w-4 h-4 text-primary-foreground" />
-        </div>
+        <img src={logo} alt="Sask Gaming Pad" className="w-8 h-8 rounded-lg object-contain flex-shrink-0" />
         {!collapsed && (
           <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="font-display font-bold text-sm truncate">
             Sask Gaming Pad
