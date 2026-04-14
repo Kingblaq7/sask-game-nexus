@@ -1,8 +1,9 @@
 import { motion } from "framer-motion";
-import { Gamepad2, ArrowRight, Zap, Shield, Users, BarChart3 } from "lucide-react";
+import { ArrowRight, Zap, Shield, Users, BarChart3 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { SocialLinks } from "@/components/SocialLinks";
 import { Footer } from "@/components/Footer";
+import logo from "@/assets/logo.png";
 
 const features = [
   { icon: Users, title: "Collaborate", desc: "Build together with founders, devs & gamers in real-time workspaces." },
@@ -18,9 +19,7 @@ export default function LandingPage() {
       <nav className="border-b border-border">
         <div className="container flex items-center justify-between h-16">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-              <Gamepad2 className="w-4 h-4 text-primary-foreground" />
-            </div>
+            <img src={logo} alt="Sask Gaming Pad" className="w-8 h-8 rounded-lg object-contain" />
             <span className="font-display font-bold">Sask Gaming Pad</span>
           </div>
           <Link
