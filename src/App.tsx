@@ -15,6 +15,7 @@ import CollaborationPage from "./pages/CollaborationPage";
 import DAOPage from "./pages/DAOPage";
 import RevenuePage from "./pages/RevenuePage";
 import ContractsPage from "./pages/ContractsPage";
+import ContractDetailsPage from "./pages/ContractDetailsPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
 import CollabsPage from "./pages/CollabsPage";
 import EarningsPage from "./pages/EarningsPage";
