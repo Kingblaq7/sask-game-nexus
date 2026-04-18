@@ -70,6 +70,16 @@ export interface Earning {
   created_at: string;
 }
 
+export interface Contract {
+  id: string;
+  name: string;
+  type: "Casino Game" | "Betting Pool" | "NFT Asset";
+  address: string;
+  creator: string;
+  status: "active" | "pending";
+  created_at: string;
+}
+
 export interface Withdrawal {
   id: string;
   user_id: string;
