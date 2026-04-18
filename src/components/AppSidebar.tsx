@@ -111,7 +111,7 @@ export function AppSidebar({ onClose, isMobileOverlay }: AppSidebarProps) {
           <div className="glass-card p-3">
             <div className="flex items-center gap-2 text-xs">
               <User className="w-4 h-4 text-primary" />
-              <span className="truncate font-medium">{user.username || user.email}</span>
+              <span className="truncate font-medium">{(user.user_metadata as any)?.username || user.email}</span>
             </div>
             <div className="mt-1 text-xs text-muted-foreground capitalize">member</div>
           </div>
