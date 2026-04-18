@@ -42,6 +42,7 @@ const App = () => (
               <Route path="/dao" element={<DAOPage />} />
               <Route path="/revenue" element={<RevenuePage />} />
               <Route path="/contracts" element={<ContractsPage />} />
+              <Route path="/contracts/:id" element={<ContractDetailsPage />} />
               <Route path="/analytics" element={<AnalyticsPage />} />
               <Route path="/collabs" element={<CollabsPage />} />
               <Route path="/earnings" element={<EarningsPage />} />
