@@ -89,10 +89,11 @@ export default function CollabsPage() {
     if (!user) return;
     try {
       const campaign = getCampaignById(campaignId);
+      const username = (user.user_metadata as any)?.username || user.email?.split("@")[0] || "user";
       applyForCampaign({
         campaign_id: campaignId,
-        user_id: user.email,
-        username: user.username,
+        user_id: user.email ?? user.id,
+        username,
         submission_links: applyLinks,
         message: applyMessage,
       });
@@ -101,7 +102,7 @@ export default function CollabsPage() {
         addNotification({
           user_id: campaign.creator,
           title: "New Application",
-          message: `${user.username} applied to "${campaign.title}"`,
+          message: `${username} applied to "${campaign.title}"`,
           type: "application",
           link: "/collabs",
         });

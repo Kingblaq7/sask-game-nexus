@@ -114,7 +114,7 @@ export default function ProfilePage() {
             <User className="w-8 h-8 text-primary-foreground" />
           </div>
           <div className="flex-1 min-w-0">
-            <h1 className="font-display text-2xl font-bold">{user.username}</h1>
+            <h1 className="font-display text-2xl font-bold">{(user.user_metadata as any)?.username || user.email?.split("@")[0]}</h1>
             <p className="text-sm text-muted-foreground mt-0.5">{user.email}</p>
             {address ? (
               <button onClick={copyAddress} className="flex items-center gap-2 mt-2 text-xs text-muted-foreground hover:text-foreground transition-colors group">
