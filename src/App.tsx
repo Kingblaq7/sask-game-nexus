@@ -15,6 +15,7 @@ import CollaborationPage from "./pages/CollaborationPage";
 import DAOPage from "./pages/DAOPage";
 import RevenuePage from "./pages/RevenuePage";
 import ContractsPage from "./pages/ContractsPage";
+import ContractDetailsPage from "./pages/ContractDetailsPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
 import CollabsPage from "./pages/CollabsPage";
 import EarningsPage from "./pages/EarningsPage";
@@ -41,6 +42,7 @@ const App = () => (
               <Route path="/dao" element={<DAOPage />} />
               <Route path="/revenue" element={<RevenuePage />} />
               <Route path="/contracts" element={<ContractsPage />} />
+              <Route path="/contracts/:id" element={<ContractDetailsPage />} />
               <Route path="/analytics" element={<AnalyticsPage />} />
               <Route path="/collabs" element={<CollabsPage />} />
               <Route path="/earnings" element={<EarningsPage />} />

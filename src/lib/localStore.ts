@@ -70,6 +70,16 @@ export interface Earning {
   created_at: string;
 }
 
+export interface Contract {
+  id: string;
+  name: string;
+  type: "Casino Game" | "Betting Pool" | "NFT Asset";
+  address: string;
+  creator: string;
+  status: "active" | "pending";
+  created_at: string;
+}
+
 export interface Withdrawal {
   id: string;
   user_id: string;
@@ -86,6 +96,39 @@ const APPLICATIONS_KEY = "w3gh:applications";
 const REFERRALS_KEY = "w3gh:referrals";
 const EARNINGS_KEY = "w3gh:earnings";
 const WITHDRAWALS_KEY = "w3gh:withdrawals";
+const CONTRACTS_KEY = "w3gh:contracts";
+
+// Contracts
+export const getContracts = (): Contract[] => read<Contract>(CONTRACTS_KEY);
+
+export const getContractById = (id: string): Contract | undefined =>
+  getContracts().find((c) => c.id === id);
+
+const genHexAddress = () => {
+  const hex = "0123456789abcdef";
+  let out = "0x";
+  for (let i = 0; i < 40; i++) out += hex[Math.floor(Math.random() * 16)];
+  return out;
+};
+
+export const deployContract = (c: {
+  name: string;
+  type: Contract["type"];
+  creator: string;
+}): Contract => {
+  const contracts = getContracts();
+  const contract: Contract = {
+    id: genId(),
+    name: c.name,
+    type: c.type,
+    address: genHexAddress(),
+    creator: c.creator,
+    status: "active",
+    created_at: new Date().toISOString(),
+  };
+  write(CONTRACTS_KEY, [contract, ...contracts]);
+  return contract;
+};
 
 function read<T>(key: string): T[] {
   try {
