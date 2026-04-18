@@ -236,33 +236,10 @@ export type Database = {
       }
     }
     Views: {
-      public_profiles: {
-        Row: {
-          created_at: string | null
-          id: string | null
-          role: string | null
-          user_id: string | null
-          username: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string | null
-          role?: string | null
-          user_id?: string | null
-          username?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string | null
-          role?: string | null
-          user_id?: string | null
-          username?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_my_wallet_address: { Args: never; Returns: string }
     }
     Enums: {
       [_ in never]: never
