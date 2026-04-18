@@ -4,6 +4,8 @@ import { ArrowLeft, FileCode2, Copy, BookOpen, Send, ExternalLink, CheckCircle2,
 import { Button } from "@/components/ui/button";
 import { getContractById, type Contract } from "@/lib/localStore";
 import { toast } from "@/hooks/use-toast";
+import { readContractState, sendTransaction, type ContractReadResult } from "@/lib/ethers";
+import { useWallet } from "@/hooks/useWallet";
 
 const statusConfig: Record<Contract["status"], { icon: typeof CheckCircle2; label: string; class: string }> = {
   active: { icon: CheckCircle2, label: "Active", class: "bg-success/10 text-success" },
@@ -15,7 +17,8 @@ export default function ContractDetailsPage() {
   const contract = id ? getContractById(id) : undefined;
   const [reading, setReading] = useState(false);
   const [sending, setSending] = useState(false);
-  const [readResult, setReadResult] = useState<string | null>(null);
+  const [readResult, setReadResult] = useState<ContractReadResult | null>(null);
+  const wallet = useWallet();
 
   if (!contract) {
     return (
@@ -35,24 +38,63 @@ export default function ContractDetailsPage() {
     toast({ title: "Address copied" });
   };
 
-  // Future: replace with ethers.js read call against Base RPC
+  // Real on-chain read against Base mainnet via JsonRpcProvider
   const handleRead = async () => {
     setReading(true);
     setReadResult(null);
-    await new Promise((r) => setTimeout(r, 800));
-    setReadResult(`balance: ${(Math.random() * 10).toFixed(4)} ETH | totalPlays: ${Math.floor(Math.random() * 1000)}`);
-    setReading(false);
+    try {
+      const result = await readContractState(contract.address);
+      setReadResult(result);
+      toast({
+        title: result.isContract ? "Contract read successful" : "No contract code at address",
+        description: `Block #${result.blockNumber} on Base`,
+      });
+    } catch (err: any) {
+      toast({
+        title: "Read failed",
+        description: err?.message || "Unable to read from Base RPC",
+        variant: "destructive",
+      });
+    } finally {
+      setReading(false);
+    }
   };
 
-  // Future: replace with ethers.js signer.sendTransaction()
+  // Real on-chain write via the user's connected wallet on Base
   const handleSend = async () => {
+    if (!wallet.address) {
+      toast({ title: "Connect wallet first", variant: "destructive" });
+      return;
+    }
+    if (!wallet.isBaseNetwork) {
+      try {
+        await wallet.switchToBase();
+      } catch {
+        toast({ title: "Please switch to Base mainnet", variant: "destructive" });
+        return;
+      }
+    }
     setSending(true);
-    await new Promise((r) => setTimeout(r, 1200));
-    setSending(false);
-    toast({
-      title: "Transaction sent (simulated)",
-      description: `tx: 0x${Math.random().toString(16).slice(2, 10)}...`,
-    });
+    try {
+      const { hash, explorerUrl } = await sendTransaction({
+        to: contract.address,
+        valueEth: "0",
+      });
+      toast({
+        title: "Transaction submitted",
+        description: `${hash.slice(0, 10)}...${hash.slice(-6)} — view on BaseScan`,
+      });
+      // Open the explorer for confirmation
+      window.open(explorerUrl, "_blank", "noopener,noreferrer");
+    } catch (err: any) {
+      toast({
+        title: "Transaction failed",
+        description: err?.shortMessage || err?.message || "User rejected or network error",
+        variant: "destructive",
+      });
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -124,13 +166,21 @@ export default function ContractDetailsPage() {
         </div>
 
         {readResult && (
-          <div className="mt-4 p-3 rounded-lg bg-muted/30 font-mono text-xs">
-            {readResult}
+          <div className="mt-4 p-3 rounded-lg bg-muted/30 font-mono text-xs space-y-1">
+            <div>address: <span className="text-primary">{readResult.address}</span></div>
+            <div>isContract: {readResult.isContract ? "true" : "false"}</div>
+            <div>bytecodeSize: {readResult.bytecodeSize} bytes</div>
+            <div>balance: {readResult.balanceEth} ETH</div>
+            <div>latestBlock: #{readResult.blockNumber}</div>
           </div>
         )}
 
         <p className="text-xs text-muted-foreground mt-4">
-          Interactions are simulated. Connect a wallet and integrate ethers.js to enable live calls on Base.
+          {wallet.address
+            ? wallet.isBaseNetwork
+              ? `Connected: ${wallet.shortAddress} on Base. Send Transaction submits a real 0-value tx to this address.`
+              : `Connected: ${wallet.shortAddress}. You'll be prompted to switch to Base when sending.`
+            : "Read calls run against Base RPC. Connect a wallet to send transactions."}
         </p>
       </div>
     </div>
