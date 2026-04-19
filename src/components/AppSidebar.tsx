@@ -21,6 +21,7 @@ import { NavLink } from "@/components/NavLink";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
+import { useUserRole } from "@/hooks/useUserRole";
 import { useNavigate } from "react-router-dom";
 
 const navItems = [
@@ -44,6 +45,7 @@ interface AppSidebarProps {
 export function AppSidebar({ onClose, isMobileOverlay }: AppSidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const { user, signOut } = useAuth();
+  const { role } = useUserRole();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
@@ -113,7 +115,7 @@ export function AppSidebar({ onClose, isMobileOverlay }: AppSidebarProps) {
               <User className="w-4 h-4 text-primary" />
               <span className="truncate font-medium">{(user.user_metadata as any)?.username || user.email}</span>
             </div>
-            <div className="mt-1 text-xs text-muted-foreground capitalize">member</div>
+            <div className="mt-1 text-xs text-muted-foreground capitalize">{role || "member"}</div>
           </div>
         )}
         <div className="flex gap-1">

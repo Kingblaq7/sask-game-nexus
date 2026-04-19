@@ -7,9 +7,12 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AppLayout } from "@/components/AppLayout";
+import { RoleRedirect } from "@/components/RoleRedirect";
 import LandingPage from "./pages/LandingPage";
 import AuthPage from "./pages/AuthPage";
 import DashboardPage from "./pages/DashboardPage";
+import CreatorDashboardPage from "./pages/CreatorDashboardPage";
+import BuilderDashboardPage from "./pages/BuilderDashboardPage";
 import ProjectsPage from "./pages/ProjectsPage";
 import CollaborationPage from "./pages/CollaborationPage";
 import DAOPage from "./pages/DAOPage";
@@ -36,7 +39,10 @@ const App = () => (
             <Route path="/" element={<LandingPage />} />
             <Route path="/auth" element={<AuthPage />} />
             <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
-              <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/dashboard" element={<RoleRedirect />} />
+              <Route path="/dashboard/general" element={<DashboardPage />} />
+              <Route path="/dashboard/creator" element={<CreatorDashboardPage />} />
+              <Route path="/dashboard/builder" element={<BuilderDashboardPage />} />
               <Route path="/projects" element={<ProjectsPage />} />
               <Route path="/collaboration" element={<CollaborationPage />} />
               <Route path="/dao" element={<DAOPage />} />

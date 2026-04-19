@@ -1,18 +1,30 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
-import { Gamepad2, Mail, Lock, User, Wallet } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Gamepad2, Mail, Lock, User, Wallet, IdCard, Crown, Wrench, Compass, Check } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useWallet } from "@/hooks/useWallet";
 import { lovable } from "@/integrations/lovable";
+import { WelcomeDialog } from "@/components/WelcomeDialog";
+
+type Role = "creator" | "builder" | "general";
+
+const ROLES: { id: Role; title: string; desc: string; Icon: typeof Crown }[] = [
+  { id: "creator", title: "Creator", desc: "Start and manage gaming projects", Icon: Crown },
+  { id: "builder", title: "Builder", desc: "Join projects and contribute skills", Icon: Wrench },
+  { id: "general", title: "General", desc: "Explore and participate in the platform", Icon: Compass },
+];
 
 export default function AuthPage() {
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [role, setRole] = useState<Role>("general");
   const [loading, setLoading] = useState(false);
+  const [welcome, setWelcome] = useState<{ name: string; email: string } | null>(null);
   const { signIn, signUp } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -24,16 +36,23 @@ export default function AuthPage() {
 
     try {
       if (isSignUp) {
-        await signUp(email, password, username);
-        toast({ title: "Success", description: "Account created successfully" });
-        navigate("/dashboard");
+        if (!fullName.trim() || !username.trim()) {
+          throw new Error("Full name and username are required");
+        }
+        await signUp({ email, password, username, fullName, role });
+        // After signUp, AuthContext picks up the session via onAuthStateChange.
+        setWelcome({ name: fullName.trim(), email: email.trim() });
       } else {
         await signIn(email, password);
-        toast({ title: "Success", description: "Logged in successfully" });
+        toast({ title: "Welcome back!" });
         navigate("/dashboard");
       }
     } catch (err: any) {
-      toast({ title: "Error", description: err?.message || "Something went wrong", variant: "destructive" });
+      const msg = err?.message || "Something went wrong";
+      const friendly = /already registered|already exists|duplicate/i.test(msg)
+        ? "An account with this email already exists"
+        : msg;
+      toast({ title: "Error", description: friendly, variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -59,22 +78,48 @@ export default function AuthPage() {
         </div>
 
         <h2 className="font-display text-xl font-semibold text-center mb-6">
-          {isSignUp ? "Create Account" : "Welcome Back"}
+          {isSignUp ? "Create your account" : "Welcome Back"}
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {isSignUp && (
-            <div className="relative">
-              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="w-full bg-muted/30 rounded-lg pl-10 pr-4 py-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/50"
-              />
-            </div>
-          )}
+          <AnimatePresence initial={false}>
+            {isSignUp && (
+              <motion.div
+                key="signup-fields"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="space-y-4 overflow-hidden"
+              >
+                <div className="relative">
+                  <IdCard className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <input
+                    type="text"
+                    placeholder="Full name"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    required={isSignUp}
+                    maxLength={80}
+                    className="w-full bg-muted/30 rounded-lg pl-10 pr-4 py-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/50"
+                  />
+                </div>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <input
+                    type="text"
+                    placeholder="Username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    required={isSignUp}
+                    minLength={3}
+                    maxLength={30}
+                    className="w-full bg-muted/30 rounded-lg pl-10 pr-4 py-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/50"
+                  />
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input
@@ -98,12 +143,45 @@ export default function AuthPage() {
               className="w-full bg-muted/30 rounded-lg pl-10 pr-4 py-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary/50"
             />
           </div>
+
+          {isSignUp && (
+            <div className="space-y-2">
+              <p className="text-xs text-muted-foreground font-medium pt-1">I'm joining as a…</p>
+              <div className="grid gap-2">
+                {ROLES.map(({ id, title, desc, Icon }) => {
+                  const active = role === id;
+                  return (
+                    <button
+                      type="button"
+                      key={id}
+                      onClick={() => setRole(id)}
+                      className={`flex items-start gap-3 text-left p-3 rounded-lg border transition-colors ${
+                        active
+                          ? "border-primary/60 bg-primary/10"
+                          : "border-border bg-muted/20 hover:bg-muted/40"
+                      }`}
+                    >
+                      <div className={`w-8 h-8 rounded-md flex items-center justify-center flex-shrink-0 ${active ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"}`}>
+                        <Icon className="w-4 h-4" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium">{title}</p>
+                        <p className="text-xs text-muted-foreground">{desc}</p>
+                      </div>
+                      {active && <Check className="w-4 h-4 text-primary flex-shrink-0 mt-1" />}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           <button
             type="submit"
             disabled={loading}
             className="w-full py-3 rounded-lg bg-gradient-to-r from-primary to-accent text-primary-foreground font-semibold hover:opacity-90 transition-opacity glow-primary disabled:opacity-50"
           >
-            {loading ? "Loading..." : isSignUp ? "Sign Up" : "Sign In"}
+            {loading ? "Loading..." : isSignUp ? "Create account" : "Sign In"}
           </button>
         </form>
 
@@ -151,6 +229,16 @@ export default function AuthPage() {
           </button>
         </p>
       </motion.div>
+
+      <WelcomeDialog
+        open={!!welcome}
+        name={welcome?.name || ""}
+        email={welcome?.email || ""}
+        onClose={() => {
+          setWelcome(null);
+          navigate("/dashboard");
+        }}
+      />
     </div>
   );
 }
